@@ -1,16 +1,36 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { Customer } from './customer';
 
-function ratingRange(c: AbstractControl): { [key: string]: boolean } | null {
-    console.log(c.value);
-    if (c.value != undefined && (isNaN(c.value) || c.value < 1 || c.value > 5)) {
-        return { 'range': true };
-    };
-    return null;
+//to define validators with parameters we need validator with validator function as parameters
+// we want a function that takes a min and max values to validate againsts.
+//requires wrapping the function in factory function.
 
+function ratingRange(min: number, max: number): ValidatorFn {
+
+    /*
+    var temp = function (c: AbstractControl): { [key: string]: boolean } | null {
+        console.log("The current value is " + c.value);
+        if (c.value != undefined && (isNaN(c.value) || c.value < min || c.value > max)) {
+            return { 'range': true };
+        };
+        return null;
+    }
+    return temp;
+    */
+
+    //the above can be 'simplified/complexified' using the following lambda
+
+    return (c: AbstractControl): { [key: string]: boolean } | null => {
+        console.log("The current value : " + c.value);
+        if (c.value != undefined && (isNaN(c.value) || c.value < min || c.value > max)) {
+            return { 'range': true };
+        };
+        return null;
+    }
 }
+
 
 
 
@@ -42,7 +62,7 @@ export class CustomerComponent implements OnInit {
             email: ['', [Validators.required, Validators.pattern("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+")]],
             phone: '',
             notification: 'email',
-            rating: ['', ratingRange],
+            rating: ['', ratingRange(1, 10)],
             sendCatalog: true
         });
 
